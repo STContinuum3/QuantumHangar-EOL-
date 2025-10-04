@@ -83,6 +83,11 @@ namespace QuantumHangar.Commands
         [Permission(MyPromoteLevel.None)]
         public async void ListGrids()
         {
+            if (Context.Player == null)
+            {
+                Context.Respond("This is a player only command!");
+                return;
+            }
             var user = new FactionChecks(Context);
             await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(), Context);
         }
@@ -193,6 +198,11 @@ namespace QuantumHangar.Commands
         [Permission(MyPromoteLevel.None)]
         public async void ListGrids()
         {
+            if (Context.Player == null)
+            {
+                Context.Respond("This is a player only command!");
+                return;
+            }
             var user = new FactionChecks(Context);
             await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(), Context);
         }

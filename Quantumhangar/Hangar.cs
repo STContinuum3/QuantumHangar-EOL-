@@ -42,6 +42,11 @@ namespace QuantumHangar
 
         public static ITorchPlugin Alliances;
 
+        // Groups plugin support
+        public static ITorchPlugin Groups;
+        public static MethodInfo GetGroupId;
+        public static MethodInfo HasGroupAccess;
+
         public enum ErrorType
         {
             Debug,
@@ -159,6 +164,8 @@ namespace QuantumHangar
             if (!LoadedPlugins)
             {
                 LoadedPlugins = true;
+
+                // Try to load Alliances plugin
                 if (Torch.Managers.GetManager<PluginManager>().Plugins.TryGetValue(Guid.Parse("74796707-646f-4ebd-8700-d077a5f47af3"),
                         out var AlliancePlugin))
                 {
@@ -170,10 +177,68 @@ namespace QuantumHangar
                         GetAllianceId = AllianceIntegration.GetMethod("GetAllianceId", BindingFlags.Public | BindingFlags.Static);
                         HasAccess = AllianceIntegration.GetMethod("HasAccess", BindingFlags.Public | BindingFlags.Static);
                         Alliances = AlliancePlugin;
+                        Log.Info("Alliances plugin integration loaded successfully");
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Error loading the alliance integration for upgrades");
+                        Log.Error("Error loading the alliance integration: " + ex.Message);
+                    }
+                }
+
+                // Try to load Groups plugin
+                if (Torch.Managers.GetManager<PluginManager>().Plugins.TryGetValue(Guid.Parse("24dbf2df-7728-4a7b-a4b8-f2fe9fadd1cd"),
+                        out var GroupsPlugin))
+                {
+                    try
+                    {
+                        // First try to get the Core class to access runtime assemblies
+                        var coreType = GroupsPlugin.GetType().Assembly.GetType("CrunchGroup.Core");
+                        if (coreType != null)
+                        {
+                            // Get the myAssemblies property which contains runtime-compiled scripts
+                            var myAssembliesProperty = coreType.GetProperty("myAssemblies", BindingFlags.Public | BindingFlags.Static);
+                            if (myAssembliesProperty != null)
+                            {
+                                var assemblies = myAssembliesProperty.GetValue(null) as List<Assembly>;
+                                if (assemblies != null && assemblies.Count > 0)
+                                {
+                                    // Search through runtime assemblies for the integration class
+                                    foreach (var assembly in assemblies)
+                                    {
+                                        var GroupsIntegration = assembly.GetType("CrunchGroup.STC.GroupsHangarIntegration");
+                                        if (GroupsIntegration != null)
+                                        {
+                                            GetGroupId = GroupsIntegration.GetMethod("GetGroupId", BindingFlags.Public | BindingFlags.Static);
+                                            HasGroupAccess = GroupsIntegration.GetMethod("HasAccess", BindingFlags.Public | BindingFlags.Static);
+                                            Groups = GroupsPlugin;
+                                            Log.Info("Groups plugin integration loaded successfully from runtime scripts");
+                                            break;
+                                        }
+                                    }
+
+                                    if (Groups == null)
+                                    {
+                                        Log.Warn("Groups plugin found but GroupsHangarIntegration not found in runtime scripts");
+                                    }
+                                }
+                                else
+                                {
+                                    Log.Warn("Groups plugin found but no runtime assemblies loaded yet");
+                                }
+                            }
+                            else
+                            {
+                                Log.Warn("Groups plugin found but myAssemblies property not found");
+                            }
+                        }
+                        else
+                        {
+                            Log.Warn("Groups plugin found but Core class not found");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error loading the Groups integration: " + ex.Message);
                     }
                 }
             }

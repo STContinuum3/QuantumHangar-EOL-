@@ -30,7 +30,6 @@ namespace QuantumHangar.HangarChecks
         private readonly MyCharacter _userCharacter;
 
         private AllianceHanger AllianceHanger { get; set; }
-        private MyFaction PlayersFaction { get; set; }
         private Guid AllianceId { get; set; }
         public static Settings Config => Hangar.Config;
 
@@ -71,7 +70,18 @@ namespace QuantumHangar.HangarChecks
                 return;
             }
             var methodInputAccess = new object[] { SteamId, this.AllianceId, "Everything" };
-            var hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+
+            // Check using appropriate plugin (Alliances or Groups)
+            bool hasAccess = false;
+            if (Hangar.Alliances != null)
+            {
+                hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+            }
+            else if (Hangar.Groups != null)
+            {
+                hasAccess = (bool)(Hangar.HasGroupAccess?.Invoke(null, methodInputAccess));
+            }
+
             if (!hasAccess)
             {
                 _chat?.Respond("You do not have access to change !");
@@ -95,11 +105,15 @@ namespace QuantumHangar.HangarChecks
                 _chat?.Respond("Plugin is not enabled!");
                 return false;
             }
-            
-            this.AllianceId = GetAllianceId();
+
+            // Alliance ID should already be set by the calling method
             if (this.AllianceId == Guid.Empty)
             {
-                return false;
+                this.AllianceId = GetAllianceId();
+                if (this.AllianceId == Guid.Empty)
+                {
+                    return false;
+                }
             }
             if (AllianceHanger.IsServerSaving(_chat))
             {
@@ -110,7 +124,18 @@ namespace QuantumHangar.HangarChecks
             if (isSaving)
             {
                 var methodInputAccess = new object[] { SteamId, this.AllianceId, "HangarSave" };
-                var hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+                bool hasAccess = false;
+
+                // Check using appropriate plugin (Alliances or Groups)
+                if (Hangar.Alliances != null)
+                {
+                    hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+                }
+                else if (Hangar.Groups != null)
+                {
+                    hasAccess = (bool)(Hangar.HasGroupAccess?.Invoke(null, methodInputAccess));
+                }
+
                 if (!hasAccess)
                 {
                     _chat?.Respond("You do not have access to save to alliance hanger!");
@@ -120,7 +145,18 @@ namespace QuantumHangar.HangarChecks
             if (isLoading)
             {
                 var methodInputAccess = new object[] { SteamId, this.AllianceId, "HangarLoad" };
-                var hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+                bool hasAccess = false;
+
+                // Check using appropriate plugin (Alliances or Groups)
+                if (Hangar.Alliances != null)
+                {
+                    hasAccess = (bool)(Hangar.HasAccess?.Invoke(null, methodInputAccess));
+                }
+                else if (Hangar.Groups != null)
+                {
+                    hasAccess = (bool)(Hangar.HasGroupAccess?.Invoke(null, methodInputAccess));
+                }
+
                 if (!hasAccess)
                 {
                     _chat?.Respond("You do not have access to load from alliance hanger!");
@@ -165,7 +201,7 @@ namespace QuantumHangar.HangarChecks
 
             var result = new GridResult();
             //Gets grids player is looking at
-            if (!result.GetGrids(_chat, _userCharacter, null, this.PlayersFaction.FactionId))
+            if (!result.GetGrids(_chat, _userCharacter, null, 0))
                 return;
 
             if (IsAnyGridInsideSafeZone(result))
@@ -391,9 +427,9 @@ namespace QuantumHangar.HangarChecks
             }
         }
 
-        public void ListGrids()
+        public void ListGrids(Guid allianceId)
         {
-            this.AllianceId = GetAllianceId();
+            this.AllianceId = allianceId;
             if (this.AllianceId == Guid.Empty)
             {
                 return;
@@ -419,10 +455,9 @@ namespace QuantumHangar.HangarChecks
 
         public async void LoadGrid(string input, bool loadNearPlayer, Guid allianceId)
         {
+            this.AllianceId = allianceId;
             if (!PerformMainChecks(false, true))
                 return;
-
-            this.AllianceId = allianceId;
             if (!AllianceHanger.ParseInput(input, out var id))
             {
                 _chat.Respond($"Grid {input} could not be found!");

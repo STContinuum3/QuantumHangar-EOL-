@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0"?>
 <PluginManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<Name>Quantum Hangar</Name>
-	<Guid>24fc7724-0740-4a54-8bb3-1191fd3c8db4</Guid>
-	<Repository>Quantum Hangar</Repository>
-	<Version>v3.2.69</Version>
+	<Name>Quantum Hangar-STC</Name>
+	<Guid>e53898f2-cd15-4f9a-a4a9-f5f80d18b14b</Guid>
+	<Repository>Quantum Hangar-STC</Repository>
+	<Version>v3.2.692</Version>
 </PluginManifest>

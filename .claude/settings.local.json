@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(if exist \"CLAUDE.md\" echo \"CLAUDE.md exists\" else echo \"CLAUDE.md not found\")",
+      "Read(//c/SE-Projects/STC 4.0 - Groups/GroupPlugin/TerritoryPlugin/**)",
+      "Read(//c/SE-Projects/STC 4.0 - Groups/GroupPlugin/**)",
+      "Bash(powershell:*)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln /p:Configuration=Release /p:Platform=\"Any CPU\")",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln /p:Configuration=Release /p:Platform=AnyCPU)",
+      "Bash(msbuild:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

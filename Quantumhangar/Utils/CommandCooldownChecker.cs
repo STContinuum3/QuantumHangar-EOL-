@@ -13,9 +13,17 @@ namespace QuantumHangar.Utils
         public static bool FailsAlliancePreChecks(CommandContext Context, out Guid allianceId)
         {
             allianceId = Guid.Empty;
-            if (Hangar.Alliances == null)
+
+            if (Context.Player == null)
             {
-                Context?.Respond("Alliances is not installed!");
+                Context.Respond("This is a player only command!");
+                return true;
+            }
+
+            // Check if either Alliances or Groups plugin is installed
+            if (Hangar.Alliances == null && Hangar.Groups == null)
+            {
+                Context?.Respond("Neither Alliances nor Groups plugin is installed!");
                 return true;
             }
 
@@ -28,11 +36,25 @@ namespace QuantumHangar.Utils
 
             var methodInput = new object[] { faction.Tag };
 
-            allianceId = (Guid)(Hangar.GetAllianceId?.Invoke(null, methodInput));
-            if (allianceId == null || allianceId == Guid.Empty)
+            // Try Alliances plugin first
+            if (Hangar.Alliances != null)
             {
-                Context?.Respond("Players without an alliance cannot use alliance hanger!");
-                return true;
+                allianceId = (Guid)(Hangar.GetAllianceId?.Invoke(null, methodInput));
+                if (allianceId == null || allianceId == Guid.Empty)
+                {
+                    Context?.Respond("Players without an alliance cannot use alliance hanger!");
+                    return true;
+                }
+            }
+            // If no Alliances plugin, try Groups plugin
+            else if (Hangar.Groups != null)
+            {
+                allianceId = (Guid)(Hangar.GetGroupId?.Invoke(null, methodInput));
+                if (allianceId == null || allianceId == Guid.Empty)
+                {
+                    Context?.Respond("Players without a group cannot use alliance hanger!");
+                    return true;
+                }
             }
 
             if (Hangar.AllianceAttempts.TryGetValue(allianceId, out var timer))
@@ -55,6 +77,12 @@ namespace QuantumHangar.Utils
 
         public static bool FailsFactionPreChecks(CommandContext Context)
         {
+            if (Context.Player == null)
+            {
+                Context.Respond("This is a player only command!");
+                return true;
+            }
+
             var playersFaction = MySession.Static.Factions.TryGetPlayerFaction(Context.Player.IdentityId);
             if (playersFaction == null)
             {

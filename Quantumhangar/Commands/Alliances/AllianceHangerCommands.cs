@@ -53,8 +53,10 @@ namespace QuantumHangar.Commands
         [Permission(MyPromoteLevel.None)]
         public async void ListGrids()
         {
+            if (CommandCooldownChecker.FailsAlliancePreChecks(Context, out var allianceId)) return;
+
             var user = new AllianceChecks(Context);
-            await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(), Context);
+            await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(allianceId), Context);
         }
 
         [Command("load", "Loads the specified grid by index number")]
@@ -137,8 +139,10 @@ namespace QuantumHangar.Commands
         [Permission(MyPromoteLevel.None)]
         public async void ListGrids()
         {
+            if (CommandCooldownChecker.FailsAlliancePreChecks(Context, out var allianceId)) return;
+
             var user = new AllianceChecks(Context);
-            await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(), Context);
+            await HangarCommandSystem.RunTaskAsync(() => user.ListGrids(allianceId), Context);
         }
 
         [Command("load", "Loads the specified grid by index number")]
