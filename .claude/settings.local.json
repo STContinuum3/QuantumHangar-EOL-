@@ -9,7 +9,10 @@
       "Bash(powershell:*)",
       "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln /p:Configuration=Release /p:Platform=\"Any CPU\")",
       "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln /p:Configuration=Release /p:Platform=AnyCPU)",
-      "Bash(msbuild:*)"
+      "Bash(msbuild:*)",
+      "Read(//c/SE-ProjectsV2/GroupPlugin/**)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln -p:Configuration=Release -p:Platform=AnyCPU)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" QuantumHangar.sln -p:Configuration=Release -p:Platform=\"Any CPU\")"
     ],
     "deny": [],
     "ask": []

@@ -191,49 +191,19 @@ namespace QuantumHangar
                 {
                     try
                     {
-                        // First try to get the Core class to access runtime assemblies
-                        var coreType = GroupsPlugin.GetType().Assembly.GetType("CrunchGroup.Core");
-                        if (coreType != null)
-                        {
-                            // Get the myAssemblies property which contains runtime-compiled scripts
-                            var myAssembliesProperty = coreType.GetProperty("myAssemblies", BindingFlags.Public | BindingFlags.Static);
-                            if (myAssembliesProperty != null)
-                            {
-                                var assemblies = myAssembliesProperty.GetValue(null) as List<Assembly>;
-                                if (assemblies != null && assemblies.Count > 0)
-                                {
-                                    // Search through runtime assemblies for the integration class
-                                    foreach (var assembly in assemblies)
-                                    {
-                                        var GroupsIntegration = assembly.GetType("CrunchGroup.STC.GroupsHangarIntegration");
-                                        if (GroupsIntegration != null)
-                                        {
-                                            GetGroupId = GroupsIntegration.GetMethod("GetGroupId", BindingFlags.Public | BindingFlags.Static);
-                                            HasGroupAccess = GroupsIntegration.GetMethod("HasAccess", BindingFlags.Public | BindingFlags.Static);
-                                            Groups = GroupsPlugin;
-                                            Log.Info("Groups plugin integration loaded successfully from runtime scripts");
-                                            break;
-                                        }
-                                    }
+                        // Get the integration class directly from the main plugin assembly
+                        var GroupsIntegration = GroupsPlugin.GetType().Assembly.GetType("CrunchGroup.Handlers.GroupsHangarIntegration");
 
-                                    if (Groups == null)
-                                    {
-                                        Log.Warn("Groups plugin found but GroupsHangarIntegration not found in runtime scripts");
-                                    }
-                                }
-                                else
-                                {
-                                    Log.Warn("Groups plugin found but no runtime assemblies loaded yet");
-                                }
-                            }
-                            else
-                            {
-                                Log.Warn("Groups plugin found but myAssemblies property not found");
-                            }
+                        if (GroupsIntegration != null)
+                        {
+                            GetGroupId = GroupsIntegration.GetMethod("GetGroupId", BindingFlags.Public | BindingFlags.Static);
+                            HasGroupAccess = GroupsIntegration.GetMethod("HasAccess", BindingFlags.Public | BindingFlags.Static);
+                            Groups = GroupsPlugin;
+                            Log.Info("Groups plugin integration loaded successfully");
                         }
                         else
                         {
-                            Log.Warn("Groups plugin found but Core class not found");
+                            Log.Warn("Groups plugin found but GroupsHangarIntegration class not found in plugin assembly");
                         }
                     }
                     catch (Exception ex)
