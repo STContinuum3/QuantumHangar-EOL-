@@ -186,7 +186,7 @@ namespace QuantumHangar
                 }
 
                 // Try to load Groups plugin
-                if (Torch.Managers.GetManager<PluginManager>().Plugins.TryGetValue(Guid.Parse("24dbf2df-7728-4a7b-a4b8-f2fe9fadd1cd"),
+                if (Torch.Managers.GetManager<PluginManager>().Plugins.TryGetValue(Guid.Parse("ac1b2c8a-6022-49c7-beb1-08ff04564812"),
                         out var GroupsPlugin))
                 {
                     try
